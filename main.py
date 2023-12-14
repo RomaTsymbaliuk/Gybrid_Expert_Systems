@@ -1,12 +1,16 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from tkinter import *
 
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-features = ['Printer age', 'Printer mark', 'Target']
+# laser printer, point printer
+# not-coloured, coloured
+#
+features = ['Printer age', 'Printer mark', 'Chews paper', 'Target']
 class Node:
     def __init__(self, feature_ind=None, threshold=None, left=None, right=None, info_gain=None, value=None):
         self.feature_ind = feature_ind
@@ -128,20 +132,41 @@ def test(x, tree):
     print('root.value : ', root.value)
 
 if __name__ == '__main__':
-    #7 values
+    printer_mark1, printer_mark2, printer_mark3, printer_mark4 = 0, 0, 0, 0
     printer_age = np.array([1, 2, 5, 12, 10, 2, 1, 13, 15, 2, 6, 8])
 
-    le = LabelEncoder()
-    printer_mark = np.array(le.fit_transform(['NP', 'Canon', 'Samsung', 'Nixon', 'Samsung', 'NP', 'Samsung', 'NP', 'Samsung', 'Nixon', 'NP', 'Samsung']))
-
-    target = np.array([1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0])
-    dataset = np.array([printer_age, printer_mark, target])
+    le1 = LabelEncoder()
+    le_paper = LabelEncoder()
+    printer_mark = np.array(le1.fit_transform(['NP', 'Canon', 'Samsung', 'Nixon', 'Samsung', 'NP', 'Samsung', 'NP', 'Samsung', 'Nixon', 'NP', 'Samsung']))
+    printer_chews_paper = np.array(le_paper.fit_transform(['Very strong', 'Strong', 'Medium', 'Medium', 'Low', 'Low', 'Low', 'Medium', 'Low', 'Medium', 'Medium', 'Low']))
+    target = np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0])
+    dataset = np.array([printer_age, printer_mark, printer_chews_paper, target])
     dataset = dataset.transpose()
     X, Y = dataset[:, :-1], dataset[:, -1]
     Y = Y.reshape(-1, 1)
-    classifier = TreeDecision(min_samples_split=4, max_depth=7)
+    classifier = TreeDecision(min_samples_split=6, max_depth=10)
     classifier.fit(X, Y)
-
-    x_test = np.array([4, 4])
+    x_test = np.array([4, le1.transform(['NP'])[0], le_paper.transform(['Strong'])[0]])
     test(x_test, classifier)
+
+
+    window = Tk()
+    window.columnconfigure([0, 1, 2], minsize=100)
+    window.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], minsize=20)
+
+    label1 = Label(text="Enter printer age")
+    label1.grid(row=0, column=0)
+    inputtxt = Text(window, height=1, width=10)
+    inputtxt.grid(row=1, column=0)
+    label2 = Label(text="Enter printer mark")
+    label2.grid(row=2, column=0)
+    rad1 = Radiobutton(window,  text="NP", variable=printer_mark1, value=le1.transform(['NP'])[0])
+    rad2 = Radiobutton(window,  text="Canon", variable=printer_mark2, value=le1.transform(['Canon'])[0])
+    rad3 = Radiobutton(window,  text="Samsung", variable=printer_mark3, value=le1.transform(['Samsung'])[0])
+    rad4 = Radiobutton(window,  text="Nixon", variable=printer_mark4, value=le1.transform(['Nixon'])[0])
+    rad1.grid(row=3, column=0)
+    rad2.grid(row=3, column=1)
+    rad3.grid(row=3, column=2)
+    rad4.grid(row=3, column=3)
+    window.mainloop()
 #    classifier.print_tree()
