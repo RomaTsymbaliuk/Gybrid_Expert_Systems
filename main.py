@@ -1,8 +1,7 @@
 
-from tkinter import *
 from fuzzy_system import *
+from ui import *
 from alg import *
-import math
 
 printer_age_interval = [0, 10]
 printer_chew_interval = [0, 30]
@@ -24,15 +23,8 @@ class Expert_System:
         results = use_fuzzy_system(self.FS, self.printer_sound, self.printer_chew, self.printer_age, self.printer_temperature, self.printer_speed)
         self.results = results
         print(results)
+""""
 def get_all_values():
-    printer_age = int(printer_age_string.get())
-    printer_chew = int(printer_chew_string.get())
-    printer_sound = int(printer_sound_string.get())
-    printer_speed = int(printer_speed_string.get())
-    printer_temperature = int(printer_temperature_string.get())
-
-
-    print('Printer age : ', printer_age, ' printer_chew : ', printer_chew, ' printer_sound : ', printer_sound, ' printer_speed : ', printer_speed, ' printer_temperature : ', printer_temperature)
     Expert = Expert_System(printer_age, printer_chew, printer_sound, printer_speed, printer_temperature)
     Expert.create_expert_system()
     results = Expert.use_expert_system()
@@ -44,52 +36,8 @@ def build_best_path_from_graph():
     best_path = ant_colony_optimization(points, n_ants=10, n_iterations=100, alpha=1, beta=1, evaporation_rate=0.5, Q=1,
                                         graph=graph)
     print(best_path)
+"""
 
-def build_labels(text, row, column, window, var):
-    Label(text=text).grid(row=row, column=column)
-    Entry(window, textvariable=var).grid(row=row, column=column+1)
-
-
-window = Tk()
-window.columnconfigure([0, 1, 2], minsize=100)
-window.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], minsize=20)
-printer_age_string = StringVar()
-printer_temperature_string = StringVar()
-printer_age_string = StringVar()
-printer_chew_string = StringVar()
-printer_sound_string = StringVar()
-printer_speed_string = StringVar()
-
-printer_vars = [
-    printer_age_string, printer_temperature_string,
-    printer_chew_string, printer_sound_string, printer_speed_string
-]
-
-printer_text_lbl = [
-                    "Enter printer age min: 0 max: 10",
-                    "Enter printer temperature min: 22 max: 50",
-                    "How it chews paper (Number of chewed papers in hour [0, 30])?",
-                    "How it sounds? In dB (min:0 ; max:100)",
-                    "Enter speed (Number of printer papers in hour [0, 200])"
-]
-
-solutions = [
-    "reinstall software",
-    "change cable",
-    "buy new paper",
-    "change cartridge"
-]
-expert_solution_quest_text = "How difficult for you to change"
-expert_solution_questions = []
-
-for q in solutions:
-    expert_solution_questions.append(expert_solution_quest_text + " " + q + " after " + q)
-
-print(expert_solution_questions)
-for i in range(len(printer_vars)):
-    build_labels(printer_text_lbl[i], i, 0, window, printer_vars[i])
-
-get_button = Button(window, text="Get result", command=get_all_values)
-get_button.grid(row=6, column=0)
-window.mainloop()
+win = UI(5)
+win.window.mainloop()
 
