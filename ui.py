@@ -43,6 +43,6 @@ class UI:
 
     def get_all_values(self):
         self.printer_vars_value = [int(self.printer_vars[i].get()) for i in range(self.params)]
-        self.graph = [[int(self.graph_vars[i][j].get()) if i != j else math.inf for j in range(self.solutions)] for i in range(self.solutions)]
+        self.graph = [[self.graph_vars[i][j].get() if i != j else math.inf for j in range(len(self.solutions))] for i in range(len(self.solutions))]
         print(self.printer_vars_value)
         print(self.graph)
