@@ -1,9 +1,11 @@
+import math
+
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tkinter import *
 from simpful import *
-
+from alg import *
 
 classifier = None
 printer_mark_to_classify = 0
@@ -178,29 +180,63 @@ def fuzzy_rules_and_system_create():
 
     S_111 = FuzzySet(function=Triangular_MF(a=0, b=0, c=2), term="young")
     S_222 = FuzzySet(function=Triangular_MF(a=1, b=5, c=6), term="medium")
-    S_333 = FuzzySet(function=Triangular_MF(a=4, b=7, c=10), term="old")
-    FS.add_linguistic_variable("Age", LinguisticVariable([S_111, S_222, S_333], concept="Printer chewing",
+    S_333 = FuzzySet(function=Triangular_MF(a=4, b=7, c=10), term="high")
+    FS.add_linguistic_variable("Age", LinguisticVariable([S_111, S_222, S_333], concept="Printer Age",
                                                              universe_of_discourse=[0, 10]))
+
+    S_1111 = FuzzySet(function=Triangular_MF(a=22, b=22, c=30), term="low")
+    S_2222 = FuzzySet(function=Triangular_MF(a=25, b=30, c=38), term="medium")
+    S_3333 = FuzzySet(function=Triangular_MF(a=32, b=40, c=50), term="big")
+    FS.add_linguistic_variable("Temperature", LinguisticVariable([S_1111, S_2222, S_3333], concept="Printer temperature",
+                                                         universe_of_discourse=[22, 50]))
+
 
     T_1 = FuzzySet(function=Triangular_MF(a=0, b=0, c=20), term="small")
     T_2 = FuzzySet(function=Triangular_MF(a=10, b=30, c=40), term="average")
     T_3 = FuzzySet(function=Trapezoidal_MF(a=30, b=40, c=55, d=100), term="high")
-    FS.add_linguistic_variable("Defects", LinguisticVariable([T_1, T_2, T_3], universe_of_discourse=[0, 100]))
+    FS.add_linguistic_variable("Paper_Mis_Defects", LinguisticVariable([T_1, T_2, T_3], universe_of_discourse=[0, 100]))
 
-    R1 = "IF (Sound IS loud) THEN (Defects IS high)"
-    R2 = "IF (Sound IS quiet) AND (Chewing IS low) OR (Age IS young) AND (Sound IS quiet) THEN (Defects IS small)"
-    R3 = "IF (Sound IS medium) AND (Chewing IS high) OR (Age IS young) AND (Sound IS medium) THEN (Defects IS high)"
-    R4 = "IF (Sound IS medium) AND (Chewing IS low) OR (Age IS young) AND (Sound IS loud) THEN (Defects IS high)"
-    R5 = "IF (Sound IS medium) AND (Chewing IS medium) OR (Age IS old) AND (Sound IS medium) THEN (Defects IS small)"
-    R6 = "IF (Sound IS quiet) AND (Chewing IS medium) OR (Age IS medium) AND (Sound IS quiet) THEN (Defects IS small)"
-    R7 = "IF (Sound IS quiet) AND (Chewing IS high) OR (Age IS old) AND (Sound IS loud) THEN (Defects IS high)"
-    FS.add_rules([R1, R2, R3, R4, R5, R6, R7])
+    T_11 = FuzzySet(function=Triangular_MF(a=0, b=0, c=40), term="small")
+    T_22 = FuzzySet(function=Triangular_MF(a=20, b=30, c=60), term="average")
+    T_33 = FuzzySet(function=Trapezoidal_MF(a=50, b=65, c=70, d=100), term="high")
+    FS.add_linguistic_variable("Cartridge_Defects", LinguisticVariable([T_11, T_22, T_33], universe_of_discourse=[0, 100]))
 
-    FS.set_variable("Sound", 99)
+    T_111 = FuzzySet(function=Triangular_MF(a=0, b=0, c=40), term="small")
+    T_222 = FuzzySet(function=Triangular_MF(a=20, b=30, c=60), term="average")
+    T_333 = FuzzySet(function=Trapezoidal_MF(a=50, b=65, c=70, d=100), term="high")
+    FS.add_linguistic_variable("Software_Defects",
+                               LinguisticVariable([T_111, T_222, T_333], universe_of_discourse=[0, 100]))
+
+    T_1111 = FuzzySet(function=Triangular_MF(a=0, b=0, c=10), term="small")
+    T_2222 = FuzzySet(function=Triangular_MF(a=5, b=30, c=80), term="average")
+    T_3333 = FuzzySet(function=Trapezoidal_MF(a=70, b=75, c=85, d=100), term="high")
+    FS.add_linguistic_variable("Cabel_Defects",
+                               LinguisticVariable([T_1111, T_2222, T_3333], universe_of_discourse=[0, 100]))
+
+    R1 = "IF (Sound IS loud) THEN (Paper_Mis_Defects IS high)"
+    R2 = "IF (Sound IS quiet) AND (Chewing IS low) THEN (Paper_Mis_Defects IS small)"
+    R3 = "IF (Sound IS medium) AND (Chewing IS high) THEN (Paper_Mis_Defects IS high)"
+    R4 = "IF (Sound IS medium) AND (Chewing IS low) THEN (Paper_Mis_Defects IS high)"
+    R5 = "IF (Sound IS medium) AND (Chewing IS medium) THEN (Paper_Mis_Defects IS small)"
+    R6 = "IF (Sound IS quiet) AND (Chewing IS medium) THEN (Paper_Mis_Defects IS small)"
+    R7 = "IF (Sound IS quiet) AND (Chewing IS high) THEN (Paper_Mis_Defects IS high)"
+    R9 = "IF (Age IS young) THEN (Cartridge_Defects IS small)"
+    R10 = "IF (Age IS medium) THEN (Cartridge_Defects IS average)"
+    R11 = "IF (Age IS old) THEN (Cartridge_Defects IS high)"
+    FS.add_rules([R1, R2, R3, R4, R5, R6, R7, R9, R10, R11])
+
+    #Sound - [0, 100]
+    FS.set_variable("Sound", 30)
+    #Chewing -[0, 20]
     FS.set_variable("Chewing", 20)
-    FS.set_variable("Age", 5)
-    print(FS.Mamdani_inference(["Defects"]))
-
+    #Age - [0, 10]
+    FS.set_variable("Age", 2)
+    results = FS.Mamdani_inference(["Paper_Mis_Defects", "Cartridge_Defects", "Software_Defects", "Cabel_Defects"])
+#    points = [results['Paper_Mis_Defects'], results['Inc_Defects']]
+    points = [0, 1, 2, 3] # 0 - Paper_Mis_Defects, 1 - Cartridge_Defects, 2 - Software_Defects, 3 - Cabel_Defects, 4 -
+    graph = [[math.inf, 7, 8, 2], [7, math.inf, 4, 5], [8, 4, math.inf, 3], [5, 1, 2, math.inf] ]
+    best_path = ant_colony_optimization(points, n_ants=10, n_iterations=100, alpha=1, beta=1, evaporation_rate=0.5, Q=1, graph=graph)
+    print(best_path)
 printer_age = np.array([1, 2, 5, 12, 10, 2, 1, 13, 15, 2, 6, 8])
 
 le1 = LabelEncoder()
