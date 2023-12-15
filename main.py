@@ -169,12 +169,18 @@ def fuzzy_rules_and_system_create():
     S_2 = FuzzySet(function=Triangular_MF(a=20, b=30, c=70), term="medium")
     S_3 = FuzzySet(function=Triangular_MF(a=65, b=80, c=100), term="loud")
     FS.add_linguistic_variable("Sound", LinguisticVariable([S_1, S_2, S_3], concept="Printer sound",
-                                                             universe_of_discourse=[0, 20]))
+                                                             universe_of_discourse=[0, 100]))
     S_11 = FuzzySet(function=Triangular_MF(a=0, b=0, c=10), term="low")
     S_22 = FuzzySet(function=Triangular_MF(a=0, b=10, c=20), term="medium")
     S_33 = FuzzySet(function=Triangular_MF(a=10, b=20, c=30), term="high")
     FS.add_linguistic_variable("Chewing", LinguisticVariable([S_11, S_22, S_33], concept="Printer chewing",
                                                              universe_of_discourse=[0, 30]))
+
+    S_111 = FuzzySet(function=Triangular_MF(a=0, b=0, c=2), term="young")
+    S_222 = FuzzySet(function=Triangular_MF(a=1, b=5, c=6), term="medium")
+    S_333 = FuzzySet(function=Triangular_MF(a=4, b=7, c=10), term="old")
+    FS.add_linguistic_variable("Age", LinguisticVariable([S_111, S_222, S_333], concept="Printer chewing",
+                                                             universe_of_discourse=[0, 10]))
 
     T_1 = FuzzySet(function=Triangular_MF(a=0, b=0, c=20), term="small")
     T_2 = FuzzySet(function=Triangular_MF(a=10, b=30, c=40), term="average")
@@ -182,18 +188,19 @@ def fuzzy_rules_and_system_create():
     FS.add_linguistic_variable("Defects", LinguisticVariable([T_1, T_2, T_3], universe_of_discourse=[0, 100]))
 
     R1 = "IF (Sound IS loud) THEN (Defects IS high)"
-    R2 = "IF (Sound IS quiet) AND (Chewing IS low) THEN (Defects IS small)"
-    R3 = "IF (Sound IS medium) AND (Chewing IS high) THEN (Defects IS high)"
-    R4 = "IF (Sound IS medium) AND (Chewing IS low) THEN (Defects IS small)"
-    R5 = "IF (Sound IS medium) AND (Chewing IS medium) THEN (Defects IS small)"
-    R6 = "IF (Sound IS quiet) AND (Chewing IS medium) THEN (Defects IS small)"
-    R7 = "IF (Sound IS quiet) AND (Chewing IS high) THEN (Defects IS average)"
-
+    R2 = "IF (Sound IS quiet) AND (Chewing IS low) OR (Age IS young) AND (Sound IS quiet) THEN (Defects IS small)"
+    R3 = "IF (Sound IS medium) AND (Chewing IS high) OR (Age IS young) AND (Sound IS medium) THEN (Defects IS high)"
+    R4 = "IF (Sound IS medium) AND (Chewing IS low) OR (Age IS young) AND (Sound IS loud) THEN (Defects IS high)"
+    R5 = "IF (Sound IS medium) AND (Chewing IS medium) OR (Age IS old) AND (Sound IS medium) THEN (Defects IS small)"
+    R6 = "IF (Sound IS quiet) AND (Chewing IS medium) OR (Age IS medium) AND (Sound IS quiet) THEN (Defects IS small)"
+    R7 = "IF (Sound IS quiet) AND (Chewing IS high) OR (Age IS old) AND (Sound IS loud) THEN (Defects IS high)"
     FS.add_rules([R1, R2, R3, R4, R5, R6, R7])
 
-    FS.set_variable("Sound", 10)
+    FS.set_variable("Sound", 99)
     FS.set_variable("Chewing", 20)
+    FS.set_variable("Age", 5)
     print(FS.Mamdani_inference(["Defects"]))
+
 printer_age = np.array([1, 2, 5, 12, 10, 2, 1, 13, 15, 2, 6, 8])
 
 le1 = LabelEncoder()
