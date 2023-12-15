@@ -2,11 +2,14 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from tkinter import *
+from simpful import *
+
 
 classifier = None
 printer_mark_to_classify = 0
 printer_paper_to_classify = 0
 printer_age_to_classify = 0
+printer_sound_to_classify = 0
 # This is a sample Python script.
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -142,10 +145,14 @@ def sel2():
     global printer_paper_to_classify
     printer_paper_to_classify = int(printer_paper_int.get())
 
+def sel3():
+    global printer_sound_to_classify
+    printer_sound_to_classify = int(printer_sound_int.get())
+
 def test_with_values():
     root = classifier
     tree = root.root
-    x = np.array([int(printer_age_string.get()), printer_mark_to_classify, printer_paper_to_classify])
+    x = np.array([int(printer_age_string.get()), printer_mark_to_classify, printer_paper_to_classify, int(printer_dpi_string.get())])
     print('x : ', x)
     while not tree.value:
         if x[tree.feature_ind] >= tree.threshold and tree.right:
@@ -156,14 +163,48 @@ def test_with_values():
  #           print('Go left')
     print(tree.value)
 
+def fuzzy_rules_and_system_create():
+    FS = FuzzySystem()
+    S_1 = FuzzySet(function=Triangular_MF(a=0, b=0, c=25), term="quiet")
+    S_2 = FuzzySet(function=Triangular_MF(a=20, b=30, c=70), term="medium")
+    S_3 = FuzzySet(function=Triangular_MF(a=65, b=80, c=100), term="loud")
+    FS.add_linguistic_variable("Sound", LinguisticVariable([S_1, S_2, S_3], concept="Printer sound",
+                                                             universe_of_discourse=[0, 20]))
+    S_11 = FuzzySet(function=Triangular_MF(a=0, b=0, c=10), term="low")
+    S_22 = FuzzySet(function=Triangular_MF(a=0, b=10, c=20), term="medium")
+    S_33 = FuzzySet(function=Triangular_MF(a=10, b=20, c=30), term="high")
+    FS.add_linguistic_variable("Chewing", LinguisticVariable([S_11, S_22, S_33], concept="Printer chewing",
+                                                             universe_of_discourse=[0, 30]))
+
+    T_1 = FuzzySet(function=Triangular_MF(a=0, b=0, c=20), term="small")
+    T_2 = FuzzySet(function=Triangular_MF(a=10, b=30, c=40), term="average")
+    T_3 = FuzzySet(function=Trapezoidal_MF(a=30, b=40, c=55, d=100), term="high")
+    FS.add_linguistic_variable("Defects", LinguisticVariable([T_1, T_2, T_3], universe_of_discourse=[0, 100]))
+
+    R1 = "IF (Sound IS loud) THEN (Defects IS high)"
+    R2 = "IF (Sound IS quiet) AND (Chewing IS low) THEN (Defects IS small)"
+    R3 = "IF (Sound IS medium) AND (Chewing IS high) THEN (Defects IS high)"
+    R4 = "IF (Sound IS medium) AND (Chewing IS low) THEN (Defects IS small)"
+    R5 = "IF (Sound IS medium) AND (Chewing IS medium) THEN (Defects IS small)"
+    R6 = "IF (Sound IS quiet) AND (Chewing IS medium) THEN (Defects IS small)"
+    R7 = "IF (Sound IS quiet) AND (Chewing IS high) THEN (Defects IS average)"
+
+    FS.add_rules([R1, R2, R3, R4, R5, R6, R7])
+
+    FS.set_variable("Sound", 10)
+    FS.set_variable("Chewing", 20)
+    print(FS.Mamdani_inference(["Defects"]))
 printer_age = np.array([1, 2, 5, 12, 10, 2, 1, 13, 15, 2, 6, 8])
 
 le1 = LabelEncoder()
 le_paper = LabelEncoder()
+le_sound = LabelEncoder()
 printer_mark = np.array(le1.fit_transform(['NP', 'Canon', 'Samsung', 'Nixon', 'Samsung', 'NP', 'Samsung', 'NP', 'Samsung', 'Nixon', 'NP', 'Samsung']))
 printer_chews_paper = np.array(le_paper.fit_transform(['Very strong', 'Strong', 'Medium', 'Medium', 'Low', 'Low', 'Low', 'Medium', 'Low', 'Medium', 'Medium', 'Low']))
+printer_sound = np.array(le_sound.fit_transform(['Very loud', 'Medium Loudness', 'Very loud', 'Quiet', 'Quiet', 'Very loud', 'Very loud', 'Medium Loudness', 'Quiet', 'Quiet', 'Quiet', 'Quiet']))
+printer_dpi = np.array([1000, 2000, 500, 300, 500, 600, 800, 800, 900, 1000, 900])
 target = np.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0])
-dataset = np.array([printer_age, printer_mark, printer_chews_paper, target])
+dataset = np.array([printer_age, printer_mark, printer_chews_paper, printer_sound, target])
 dataset = dataset.transpose()
 X, Y = dataset[:, :-1], dataset[:, -1]
 Y = Y.reshape(-1, 1)
@@ -172,13 +213,16 @@ classifier.fit(X, Y)
  #   x_test = np.array([4, le1.transform(['NP'])[0], le_paper.transform(['Strong'])[0]])
  #   test(x_test, classifier)
 print(printer_mark)
+fuzzy_rules_and_system_create()
 
 window = Tk()
 window.columnconfigure([0, 1, 2], minsize=100)
-window.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8], minsize=20)
+window.rowconfigure([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], minsize=20)
 printer_mark_int = IntVar()
 printer_age_string = StringVar()
 printer_paper_int = IntVar()
+printer_sound_int = IntVar()
+printer_dpi_string = StringVar()
 label1 = Label(text="Enter printer age")
 label1.grid(row=0, column=0)
 
@@ -207,7 +251,24 @@ rad11.grid(row=5, column=0)
 rad22.grid(row=5, column=1)
 rad33.grid(row=5, column=2)
 rad44.grid(row=5, column=3)
+
+label4 = Label(text = "How it sounds?")
+label4.grid(row=6, column=0)
+rad111 = Radiobutton(window, text="Very loud", variable=printer_sound_int, value=le_sound.transform(['Very loud'])[0], command=sel3)
+rad222 = Radiobutton(window, text="Medium Loudness", variable=printer_sound_int, value=le_sound.transform(['Medium Loudness'])[0], command=sel3)
+rad444 = Radiobutton(window, text="Quiet", variable=printer_sound_int, value=le_sound.transform(['Quiet'])[0], command=sel3)
+rad111.grid(row=7, column=0)
+rad222.grid(row=7, column=1)
+rad444.grid(row=7, column=3)
+
+label5 = Label(text = "Enter DPI")
+label5.grid(row=8, column=0)
+Entry(window, textvariable = printer_dpi_string).grid(row=8, column=1, sticky=E)
+
 get_button = Button(window, text="Get result", command=test_with_values)
-get_button.grid(row=6, column=0)
+get_button.grid(row=9, column=0)
+"""
 window.mainloop()
-classifier.print_tree()
+
+#classifier.print_tree()
+"""
