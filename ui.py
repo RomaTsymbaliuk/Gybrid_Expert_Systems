@@ -32,17 +32,20 @@ class UI:
             for j,w in enumerate(self.solutions):
                 if q != w:
                     text = expert_solution_quest_text + " " + q + " after " + w + " (0 - 10) "
-                    self.build_labels(text, row_count, 0, self.window, self.graph_vars[i][j])
+                    self.build_labels(text, row_count, 0, self.window, self.graph_vars[i][j], True)
                     row_count = row_count + 1
-
         Button(self.window, text="Get result", command=self.get_all_values).grid(row=row_count, column=0)
 
-    def build_labels(self, text, row, column, window, var):
+    def build_labels(self, text, row, column, window, var, grade=False):
         Label(text=text).grid(row=row, column=column)
+        if grade:
+            var.set(5)
+
         Entry(window, textvariable=var).grid(row=row, column=column + 1)
 
     def get_all_values(self):
         self.printer_vars_value = [int(self.printer_vars[i].get()) for i in range(self.params)]
         self.graph = [[self.graph_vars[i][j].get() if i != j else math.inf for j in range(len(self.solutions))] for i in range(len(self.solutions))]
-        print(self.printer_vars_value)
-        print(self.graph)
+
+    def display_result(self, result):
+        pass
