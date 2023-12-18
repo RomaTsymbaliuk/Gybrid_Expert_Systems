@@ -1,7 +1,7 @@
 import numpy as np
 
 def distance(point1, point2, graph):
-    return graph[point1][point2]
+    return int(graph[point1][point2])
 
 
 def ant_colony_optimization(points, n_ants, n_iterations, alpha, beta, evaporation_rate, Q, graph):
