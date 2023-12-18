@@ -57,5 +57,15 @@ class UI:
         row_count = 1
         for key,x in zip(results, range(len(self.solutions))):
             self.build_labels(self.solutions[best_order[x]], self.end_row + row_count, 0, self.window, None, input=False)
-            self.build_labels(results[key], self.end_row + row_count, 1, self.window, None, input=False)
+            self.build_labels(self.get_solution_from_key(self.solutions[best_order[x]], results), self.end_row + row_count, 1, self.window, None, input=False)
             row_count = row_count + 1
+
+    def get_solution_from_key(self, x, results):
+        if x == "reinstall software":
+            return results["Software_Defects"]
+        elif x == "buy new paper":
+            return results["Paper_Mis_Defects"]
+        elif x == "change cartridge":
+            return results["Cartridge_Defects"]
+        elif x == "change cable":
+            return results["Cabel_Defects"]
