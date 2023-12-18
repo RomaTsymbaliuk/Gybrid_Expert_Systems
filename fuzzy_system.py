@@ -1,8 +1,10 @@
 from simpful import *
 
-class FuzzySystem:
-    def __init__(self, args):
-        self.args = args
+class FuzzySystemClass:
+    def __init__(self, args_in, args_out):
+        self.FS = None
+        self.args_in = args_in
+        self.args_out = args_out
 
     def fuzzy_rules_and_system_create(self):
         FS = FuzzySystem()
@@ -79,10 +81,8 @@ class FuzzySystem:
         FS.add_rules(RULES)
         self.FS = FS
 
-    def use_fuzzy_system(self, args_input, args_output):
-        text_vars = ["Sound", "Chewing", "Age", "Temperature", "Speed"]
-        result_vars = ["Paper_Mis_Defects", "Cartridge_Defects", "Software_Defects", "Cabel_Defects"]
-        for text, arg in args, text_vars:
-            FS.set_variable(text, arg)
-        results = FS.Mamdani_inference(result_vars)
+    def use_fuzzy_system(self, values):
+        for text, arg in zip(self.args_in, values):
+            self.FS.set_variable(text, arg)
+        results = self.FS.Mamdani_inference(self.args_out)
         return results

@@ -11,19 +11,16 @@ printer_temperature_interval = [22, 50]
 class Expert_System:
     def __init__(self, args):
         self.args = args
-        self.FS = None
-    def create_expert_system(self):
-        self.FS = fuzzy_rules_and_system_create()
-
+        self.FS = FuzzySystemClass(["Sound", "Chewing", "Age", "Temperature", "Speed"], ["Paper_Mis_Defects", "Cartridge_Defects", "Software_Defects", "Cabel_Defects"])
+        self.FS.fuzzy_rules_and_system_create()
     def use_expert_system(self):
-        results = use_fuzzy_system(self.FS, self.args)
+        results = self.FS.use_fuzzy_system(self.args)
         self.results = results
         print(results)
 
 
 win = UI(5)
 Expert = Expert_System(win.printer_vars_value)
-Expert.create_expert_system()
 Expert.use_expert_system()
 win.window.mainloop()
 

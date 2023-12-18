@@ -6,6 +6,7 @@ class UI:
         self.window = Tk()
         self.window.columnconfigure([0, 1, 2], minsize=100)
         self.window.rowconfigure([x for x in range(15)], minsize=20)
+        self.printer_vars_value = []
         self.printer_text_lbl = [
                     "Enter printer age min: 0 max: 10",
                     "Enter printer temperature min: 22 max: 50",
